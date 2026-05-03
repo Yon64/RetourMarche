@@ -2,6 +2,7 @@ package com.example.shop.Cart;
 
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -44,12 +45,7 @@ public class CartController {
     private com.example.shop.Payment.PaymentRepository paymentRepository;
 
     @GetMapping
-    public String showBasket(Model model, HttpSession session) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
-            return "redirect:/login";
-        }
-
+    public String showBasket(Model model, HttpSession session, @AuthenticationPrincipal User user) {
         model.addAttribute("user", user);
         java.util.List<Cart> cartItems = cartService.getItems(user);
         model.addAttribute("cartItems", cartItems);
@@ -100,13 +96,9 @@ public class CartController {
     }
 
     @PostMapping("/add")
-    public String addToCart(@RequestParam Long productId, @RequestParam int quantity, HttpSession session,
+    public String addToCart(@RequestParam Long productId, @RequestParam int quantity,
+            @AuthenticationPrincipal User user,
             org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
-            return "redirect:/login";
-        }
-
         Optional<Product> productOpt = productRepository.findById(productId);
         if (productOpt.isPresent()) {
             try {
@@ -120,12 +112,7 @@ public class CartController {
     }
 
     @GetMapping("/remove/{productId}")
-    public String removeFromCart(@PathVariable Long productId, HttpSession session) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
-            return "redirect:/login";
-        }
-
+    public String removeFromCart(@PathVariable Long productId, @AuthenticationPrincipal User user) {
         Optional<Product> productOpt = productRepository.findById(productId);
         if (productOpt.isPresent()) {
             cartService.removeProduct(user, productOpt.get());
@@ -135,12 +122,7 @@ public class CartController {
     }
 
     @GetMapping("/decrease/{productId}")
-    public String decreaseQuantity(@PathVariable Long productId, HttpSession session) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
-            return "redirect:/login";
-        }
-
+    public String decreaseQuantity(@PathVariable Long productId, @AuthenticationPrincipal User user) {
         Optional<Product> productOpt = productRepository.findById(productId);
         if (productOpt.isPresent()) {
             cartService.decreaseQuantity(user, productOpt.get());
@@ -151,23 +133,13 @@ public class CartController {
 
     @PostMapping("/updateInsurance")
     public String updateInsurance(@RequestParam Long productId, @RequestParam InsuranceType insuranceType,
-            HttpSession session) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
-            return "redirect:/login";
-        }
-
+            @AuthenticationPrincipal User user) {
         cartService.updateInsurance(user, productId, insuranceType);
         return "redirect:/basket";
     }
 
     @GetMapping("/checkout")
-    public String checkout(Model model, HttpSession session) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
-            return "redirect:/login";
-        }
-
+    public String checkout(Model model, HttpSession session, @AuthenticationPrincipal User user) {
         model.addAttribute("user", user);
         java.util.List<Cart> cartItems = cartService.getItems(user);
 
@@ -189,16 +161,12 @@ public class CartController {
             org.springframework.validation.BindingResult result,
             @RequestParam String paymentMethod,
             HttpSession session,
+            @AuthenticationPrincipal User user,
             org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
 
         if (result.hasErrors()) {
             redirectAttributes.addFlashAttribute("error", result.getAllErrors().get(0).getDefaultMessage());
             return "redirect:/basket/checkout";
-        }
-
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
-            return "redirect:/login";
         }
 
         try {
@@ -299,12 +267,8 @@ public class CartController {
     }
 
     @GetMapping("/checkout/success/{orderId}")
-    public String orderSuccess(@PathVariable Long orderId, @RequestParam(required = false) String session_id, Model model, HttpSession session) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
-            return "redirect:/login";
-        }
-
+    public String orderSuccess(@PathVariable Long orderId, @RequestParam(required = false) String session_id,
+            Model model, HttpSession session, @AuthenticationPrincipal User user) {
         java.util.Optional<Order> orderOpt = orderRepository.findById(orderId);
         if (orderOpt.isPresent()) {
             Order order = orderOpt.get();

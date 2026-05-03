@@ -235,7 +235,9 @@ public class DashboardController {
                 }
 
                 if (hasBeenOrdered) {
-                    logger.warn("Cannot delete smartphone with ID {} - it has been ordered", id);
+                    if (logger.isWarnEnabled()) {
+                        logger.warn("Cannot delete smartphone with ID {} - it has been ordered", id);
+                    }
                     return "redirect:/dashboard?section=delete&error=product_ordered";
                 }
 
@@ -250,10 +252,14 @@ public class DashboardController {
 
                 // Maintenant on peut supprimer le smartphone
                 smartphoneRepository.deleteById(id);
-                logger.info("Smartphone with ID {} deleted successfully by user {}", id, user.getEmail());
+                if (logger.isInfoEnabled()) {
+                    logger.info("Smartphone with ID {} deleted successfully by user {}", id, user.getEmail());
+                }
             }
         } catch (Exception e) {
-            logger.error("Error deleting smartphone with ID {}: {}", id, e.getMessage(), e);
+            if (logger.isErrorEnabled()) {
+                logger.error("Error deleting smartphone with ID {}: {}", id, e.getMessage(), e);
+            }
             // Gérer la violation de contrainte de clé étrangère
             return "redirect:/dashboard?section=delete&error=cannot_delete";
         }
@@ -271,9 +277,13 @@ public class DashboardController {
         }
         try {
             accessoireRepository.deleteById(id);
-            logger.info("Accessoire with ID {} deleted successfully by user {}", id, user.getEmail());
+            if (logger.isInfoEnabled()) {
+                logger.info("Accessoire with ID {} deleted successfully by user {}", id, user.getEmail());
+            }
         } catch (Exception e) {
-            logger.error("Error deleting accessoire with ID {}: {}", id, e.getMessage(), e);
+            if (logger.isErrorEnabled()) {
+                logger.error("Error deleting accessoire with ID {}: {}", id, e.getMessage(), e);
+            }
             return "redirect:/dashboard?section=deleteAccessoire&error=cannot_delete";
         }
         return "redirect:/dashboard?section=deleteAccessoire";
@@ -289,9 +299,13 @@ public class DashboardController {
         }
         try {
             usersRepository.deleteById(id);
-            logger.info("User with ID {} deleted successfully by admin {}", id, user.getEmail());
+            if (logger.isInfoEnabled()) {
+                logger.info("User with ID {} deleted successfully by admin {}", id, user.getEmail());
+            }
         } catch (Exception e) {
-            logger.error("Error deleting user with ID {}: {}", id, e.getMessage(), e);
+            if (logger.isErrorEnabled()) {
+                logger.error("Error deleting user with ID {}: {}", id, e.getMessage(), e);
+            }
             return "redirect:/dashboard?section=users&error=cannot_delete";
         }
         return "redirect:/dashboard?section=users";
