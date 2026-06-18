@@ -29,7 +29,7 @@ jobs:
     steps:
       # ── 1. Checkout source code ──────────────────────────────────────────
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       # ── 2. Set up Java 17 (matches the project's java.version) ──────────
       - name: Set up JDK 17
